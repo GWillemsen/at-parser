@@ -49,7 +49,6 @@ static inline bool is_alpha_ascii(char chr)
 }
 
 static callback_entry_handle_t find_callback(callback_entry_handle_t start, const char *cmd, at_parser_received_command callback);
-static callback_entry_handle_t find_callback_handler(callback_entry_handle_t start, const char *cmd, size_t cmd_length);
 static callback_entry_handle_t get_tail(callback_entry_handle_t start);
 static callback_entry_handle_t find_before(callback_entry_handle_t start, callback_entry_handle_t item);
 static void remove_callback_handler(at_parser_handle_t parser, callback_entry_handle_t item);
@@ -178,23 +177,6 @@ static callback_entry_handle_t find_callback(callback_entry_handle_t start, cons
         current = current->next;
     }
     if (current != NULL && strcmp(current->command, cmd) == 0 && current->callback == callback)
-    {
-        return current;
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-static callback_entry_handle_t find_callback_handler(callback_entry_handle_t start, const char *cmd, size_t cmd_length)
-{
-    callback_entry_handle_t current = start;
-    while (current != NULL && strncmp(current->command, cmd, cmd_length) == 0 && current->next != NULL)
-    {
-        current = current->next;
-    }
-    if (current != NULL && strncmp(current->command, cmd, cmd_length) == 0)
     {
         return current;
     }
@@ -383,7 +365,6 @@ static bool parse_argument_list(at_parser_handle_t parser, const char *arg_list,
     {
         return false;
     }
-    bool finished = false;
     size_t position = 0;
     char separator = parser->arg_separator;
     char escape = parser->escape_char;
