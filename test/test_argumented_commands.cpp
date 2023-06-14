@@ -150,4 +150,6 @@ TEST_CASE("Set AT Commands")
         CHECK_EQ(std::string("escaped\"quote"), commands[1].arguments[2]);
         CHECK_EQ(AT_PARSER_COMMAND_TYPE_SET, commands[1].type);
     }
+
+    at_parser_free(handle);
 }

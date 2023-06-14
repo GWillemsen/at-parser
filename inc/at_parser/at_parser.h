@@ -56,6 +56,13 @@ typedef void (*at_parser_received_command)(at_parser_handle_t parser, const char
 extern int at_parser_create(at_parser_handle_t *handle, size_t buffer_size, char escape_char, char arg_separator);
 
 /**
+ * @brief Cleans up any resources allocated by the parser.
+ * 
+ * @param handle The parser to delete.
+ */
+extern void at_parser_free(at_parser_handle_t handle);
+
+/**
  * @brief Register a callback for when a command has parsed.
  * 
  * @param parser The parser to add the handler.

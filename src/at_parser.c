@@ -23,18 +23,18 @@
 #define max(one, two) ((one) > (two) ? (one) : (two))
 #endif // max
 
-struct list_item
+struct callback_entry
 {
     at_parser_received_command callback;
     char *command;
-    struct list_item *next;
+    struct callback_entry *next;
 };
 
-typedef struct list_item *list_item_handle_t;
+typedef struct callback_entry *callback_entry_handle_t;
 
 struct at_parser
 {
-    list_item_handle_t callbacks;
+    callback_entry_handle_t callbacks;
     char *buffer;
     size_t buffer_length;
     size_t buffer_used;
@@ -47,12 +47,12 @@ static inline bool is_alpha_ascii(char chr)
     return (chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'z') || (chr >= 'a' && chr <= 'Z');
 }
 
-static list_item_handle_t find_callback(list_item_handle_t start, const char *cmd, at_parser_received_command callback);
-static list_item_handle_t find_callback_handler(list_item_handle_t start, const char *cmd, size_t cmd_length);
-static list_item_handle_t get_tail(list_item_handle_t start);
-static list_item_handle_t find_before(list_item_handle_t start, list_item_handle_t item);
-static void remove_item(at_parser_handle_t parser, list_item_handle_t item);
-static int add_item(at_parser_handle_t parser, const char *name, at_parser_received_command handler);
+static callback_entry_handle_t find_callback(callback_entry_handle_t start, const char *cmd, at_parser_received_command callback);
+static callback_entry_handle_t find_callback_handler(callback_entry_handle_t start, const char *cmd, size_t cmd_length);
+static callback_entry_handle_t get_tail(callback_entry_handle_t start);
+static callback_entry_handle_t find_before(callback_entry_handle_t start, callback_entry_handle_t item);
+static void remove_callback_handler(at_parser_handle_t parser, callback_entry_handle_t item);
+static int add_callback_handler(at_parser_handle_t parser, const char *name, at_parser_received_command handler);
 static int find_char(const char *str, size_t str_len, char chr);
 static void remove_buffer(at_parser_handle_t parser, size_t len);
 static void process_string_line(at_parser_handle_t parser, const char *str, size_t len);
@@ -83,16 +83,34 @@ extern int at_parser_create(at_parser_handle_t *parser, size_t buffer_size, char
     return 0;
 }
 
+
+extern void at_parser_free(at_parser_handle_t handle)
+{
+    if (handle != NULL)
+    {
+        if (handle->buffer != NULL)
+        {
+            free(handle->buffer);
+            handle->buffer = NULL;
+        }
+        while(handle->callbacks != NULL)
+        {
+            remove_callback_handler(handle, handle->callbacks);
+        }
+        free(handle);
+    }
+}
+
 extern int at_parser_add_command_handler(at_parser_handle_t parser, const char *command_name, at_parser_received_command handler)
 {
     if (parser == NULL || command_name == NULL || handler == NULL)
     {
         return -1;
     }
-    list_item_handle_t item = find_callback(parser->callbacks, command_name, handler);
+    callback_entry_handle_t item = find_callback(parser->callbacks, command_name, handler);
     if (item == NULL)
     {
-        int rc = add_item(parser, command_name, handler);
+        int rc = add_callback_handler(parser, command_name, handler);
         if (rc != 0)
         {
             return -1;
@@ -107,10 +125,10 @@ extern int at_parser_remove_command_handler(at_parser_handle_t parser, const cha
     {
         return -1;
     }
-    list_item_handle_t callback = find_callback(parser->callbacks, command_name, handler);
+    callback_entry_handle_t callback = find_callback(parser->callbacks, command_name, handler);
     if (callback != NULL)
     {
-        remove_item(parser, callback);
+        remove_callback_handler(parser, callback);
     }
     return 0;
 }
@@ -151,10 +169,10 @@ extern int at_parser_process_buffer(at_parser_handle_t parser, const char *buffe
     return 0;
 }
 
-static list_item_handle_t find_callback(list_item_handle_t start, const char *cmd, at_parser_received_command callback)
+static callback_entry_handle_t find_callback(callback_entry_handle_t start, const char *cmd, at_parser_received_command callback)
 {
-    list_item_handle_t current = start;
-    while (current != NULL && strcmp(current->command, cmd) == 0 && current->callback == callback && current->next != NULL)
+    callback_entry_handle_t current = start;
+    while (current != NULL && strcmp(current->command, cmd) != 0 && current->callback != callback && current->next != NULL)
     {
         current = current->next;
     }
@@ -168,9 +186,9 @@ static list_item_handle_t find_callback(list_item_handle_t start, const char *cm
     }
 }
 
-static list_item_handle_t find_callback_handler(list_item_handle_t start, const char *cmd, size_t cmd_length)
+static callback_entry_handle_t find_callback_handler(callback_entry_handle_t start, const char *cmd, size_t cmd_length)
 {
-    list_item_handle_t current = start;
+    callback_entry_handle_t current = start;
     while (current != NULL && strncmp(current->command, cmd, cmd_length) == 0 && current->next != NULL)
     {
         current = current->next;
@@ -185,9 +203,9 @@ static list_item_handle_t find_callback_handler(list_item_handle_t start, const 
     }
 }
 
-static list_item_handle_t get_tail(list_item_handle_t start)
+static callback_entry_handle_t get_tail(callback_entry_handle_t start)
 {
-    list_item_handle_t current = start;
+    callback_entry_handle_t current = start;
     while (current != NULL && current->next != NULL)
     {
         current = current->next;
@@ -195,16 +213,18 @@ static list_item_handle_t get_tail(list_item_handle_t start)
     return current;
 }
 
-static list_item_handle_t find_before(list_item_handle_t start, list_item_handle_t item)
+static callback_entry_handle_t find_before(callback_entry_handle_t start, callback_entry_handle_t item)
 {
-    list_item_handle_t current = start;
+    callback_entry_handle_t previous = NULL;
+    callback_entry_handle_t current = start;
     while (current != item && current != NULL && current->next != NULL)
     {
+        previous = current;
         current = current->next;
     }
     if (current == item)
     {
-        return current;
+        return previous;
     }
     else
     {
@@ -212,7 +232,7 @@ static list_item_handle_t find_before(list_item_handle_t start, list_item_handle
     }
 }
 
-static void remove_item(at_parser_handle_t parser, list_item_handle_t item)
+static void remove_callback_handler(at_parser_handle_t parser, callback_entry_handle_t item)
 {
     if (item == NULL)
     {
@@ -220,25 +240,29 @@ static void remove_item(at_parser_handle_t parser, list_item_handle_t item)
     }
     if (parser != NULL)
     {
-        list_item_handle_t before = find_before(parser->callbacks, item);
+        callback_entry_handle_t before = find_before(parser->callbacks, item);
         if (before != NULL)
         {
             before->next = item->next;
         }
+        else
+        {
+            parser->callbacks = item->next;
+        }
     }
-    free((void *)item->command);
+    free(item->command);
     free(item);
 }
 
-static int add_item(at_parser_handle_t parser, const char *name, at_parser_received_command handler)
+static int add_callback_handler(at_parser_handle_t parser, const char *name, at_parser_received_command handler)
 {
-    list_item_handle_t new_item = malloc(sizeof(struct list_item));
+    callback_entry_handle_t new_item = malloc(sizeof(struct callback_entry));
     if (new_item == NULL)
     {
         return -1;
     }
 
-    new_item->command = malloc(strlen(name));
+    new_item->command = malloc(strlen(name) + 1);
     if (new_item->command == NULL)
     {
         free(new_item);
@@ -322,7 +346,7 @@ static void process_string_line(at_parser_handle_t parser, const char *str, size
     }
     if (!error)
     {
-        list_item_handle_t item = parser->callbacks;
+        callback_entry_handle_t item = parser->callbacks;
         do
         {
             if (item != NULL)

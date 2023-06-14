@@ -24,6 +24,7 @@ add_executable(at_parser_test
     ${CMAKE_CURRENT_SOURCE_DIR}/test_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_multi_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_unkown_or_garbage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_removing_handler.cpp
 )
 
 target_link_libraries(at_parser_test PUBLIC ${PROJECT_NAME})

@@ -49,4 +49,7 @@ TEST_CASE("Execute AT Commands")
         CHECK_EQ(0, commands[1].arguments.size());
         CHECK_EQ(AT_PARSER_COMMAND_TYPE_EXECUTE, commands[1].type);
     }
+    
+    at_parser_free(handle);
 }
+
