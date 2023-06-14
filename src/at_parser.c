@@ -15,6 +15,14 @@
 #include <ctype.h>
 #include "at_parser/at_parser.h"
 
+#ifndef min
+#define min(one, two) ((one) < (two) ? (one) : (two))
+#endif // min
+
+#ifndef max
+#define max(one, two) ((one) > (two) ? (one) : (two))
+#endif // max
+
 struct list_item
 {
     at_parser_received_command callback;
@@ -336,7 +344,7 @@ static size_t get_command_length(const char *str, size_t str_len)
 {
     size_t length = 0;
 
-    while (isascii(str[length]) && isalpha(str[length]) && length < str_len)
+    while (isascii(str[length]) && isalpha((int)str[length]) && length < str_len)
     {
         length++;
     }
