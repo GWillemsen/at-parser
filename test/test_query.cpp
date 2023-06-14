@@ -13,7 +13,7 @@ TEST_CASE("Query AT Commands")
 
     SUBCASE("Single command registered and single in buffer")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=?\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -24,9 +24,9 @@ TEST_CASE("Query AT Commands")
 
     SUBCASE("Multiple commands registered and single in buffer")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=?\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -37,9 +37,9 @@ TEST_CASE("Query AT Commands")
 
     SUBCASE("Multiple commands registered and several in buffer")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=?\r\nAT+ABC=?\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(2, commands.size());

@@ -13,7 +13,7 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Single command registered and in buffer. Unquoted argument.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=hello_world\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -25,7 +25,7 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Single command registered and in buffer. Quoted argument.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello_world\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -37,7 +37,7 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Single command registered and in buffer. Quoted argument with escaped quote center.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello\x1B\"_world\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -49,7 +49,7 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Single command registered and in buffer. Quoted argument with escaped quote end.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello_world\x1B\"\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -61,7 +61,7 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Single command registered and in buffer. Quoted argument with escaped quote start.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello_world\x1B\"\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -73,7 +73,7 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Single command registered and in buffer. Quoted argument with escaped quote at start, end & center.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"\x1B\"hello\x1B\"_world\x1B\"\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -85,9 +85,9 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Multiple commands registered and single in buffer. Quoted argument.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello_world\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -99,9 +99,9 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Multiple commands registered and single in buffer. Multiple mixed quote arguments.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello_world\",another,\"parameter\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -115,9 +115,9 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Multiple commands registered and single in buffer. Multiple mixed quote arguments. With a separator in a single quoted argument.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello,world\",another,\"parameter\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(1, commands.size());
@@ -131,9 +131,9 @@ TEST_CASE("Set AT Commands")
 
     SUBCASE("Multiple commands registered and multiple in buffer. Multiple mixed quote arguments. With a separator in a single quoted argument.")
     {
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
-        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
+        CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command, NULL));
         const char *buffer = "AT+HELLOW=\"hello,world\",another,\"parameter\"\r\nAT+ABC=next_arg,\"some,extra\",\"escaped\x1B\"quote\"\r\n";
         CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));
         CHECK_EQ(2, commands.size());

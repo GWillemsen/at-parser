@@ -42,7 +42,7 @@ struct at_parser_argument {
  * @brief Callback that is called when a command has been parsed in the buffer.
  * 
  */
-typedef void (*at_parser_received_command)(at_parser_handle_t parser, const char* command_name, enum at_parser_command_type type, struct at_parser_argument* argument_list, size_t argument_list_length);
+typedef void (*at_parser_received_command)(at_parser_handle_t parser, void *userdata, const char* command_name, enum at_parser_command_type type, struct at_parser_argument* argument_list, size_t argument_list_length);
 
 /**
  * @brief Construct a new command parser.
@@ -70,7 +70,7 @@ extern void at_parser_free(at_parser_handle_t handle);
  * @param handler The callback that should be called when the command is available.
  * @return int 0 on success, other on error.
  */
-extern int at_parser_add_command_handler(at_parser_handle_t parser, const char* command_name, at_parser_received_command handler);
+extern int at_parser_add_command_handler(at_parser_handle_t parser, const char* command_name, at_parser_received_command handler, void *userdata);
 
 /**
  * @brief Remove a registered callback on the parser.

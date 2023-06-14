@@ -10,8 +10,8 @@ TEST_CASE("Test removing command handler")
     at_parser_handle_t handle = nullptr;
     commands.clear();
     CHECK_EQ(0, at_parser_create(&handle, 50, '\x1B', ','));
-    CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-    CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
+    CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+    CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
 
     const char *buffer = "AT+HELLOW=\"ghi\"\r\nAT+ABC=def\r\n";
     CHECK_EQ(0, at_parser_process_buffer(handle, buffer, strlen(buffer)));

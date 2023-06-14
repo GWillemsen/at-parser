@@ -10,9 +10,9 @@ TEST_CASE("Test multi-buffer AT Commands")
     at_parser_handle_t handle = nullptr;
     commands.clear();
     CHECK_EQ(0, at_parser_create(&handle, 16, '\x1B', ','));
-    CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command));
-    CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command));
-    CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command));
+    CHECK_EQ(0, at_parser_add_command_handler(handle, "HELLOW", at_parser_default_received_command, NULL));
+    CHECK_EQ(0, at_parser_add_command_handler(handle, "ABC", at_parser_default_received_command, NULL));
+    CHECK_EQ(0, at_parser_add_command_handler(handle, "DEF", at_parser_default_received_command, NULL));
 
     SUBCASE("Set command")
     {

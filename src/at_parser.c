@@ -26,6 +26,7 @@
 struct callback_entry
 {
     at_parser_received_command callback;
+    void *userdata;
     char *command;
     struct callback_entry *next;
 };
@@ -52,7 +53,7 @@ static callback_entry_handle_t find_callback_handler(callback_entry_handle_t sta
 static callback_entry_handle_t get_tail(callback_entry_handle_t start);
 static callback_entry_handle_t find_before(callback_entry_handle_t start, callback_entry_handle_t item);
 static void remove_callback_handler(at_parser_handle_t parser, callback_entry_handle_t item);
-static int add_callback_handler(at_parser_handle_t parser, const char *name, at_parser_received_command handler);
+static int add_callback_handler(at_parser_handle_t parser, const char *name, at_parser_received_command handler, void *userdata);
 static int find_char(const char *str, size_t str_len, char chr);
 static void remove_buffer(at_parser_handle_t parser, size_t len);
 static void process_string_line(at_parser_handle_t parser, const char *str, size_t len);
@@ -101,7 +102,7 @@ extern void at_parser_free(at_parser_handle_t handle)
     }
 }
 
-extern int at_parser_add_command_handler(at_parser_handle_t parser, const char *command_name, at_parser_received_command handler)
+extern int at_parser_add_command_handler(at_parser_handle_t parser, const char *command_name, at_parser_received_command handler, void *userdata)
 {
     if (parser == NULL || command_name == NULL || handler == NULL)
     {
@@ -110,7 +111,7 @@ extern int at_parser_add_command_handler(at_parser_handle_t parser, const char *
     callback_entry_handle_t item = find_callback(parser->callbacks, command_name, handler);
     if (item == NULL)
     {
-        int rc = add_callback_handler(parser, command_name, handler);
+        int rc = add_callback_handler(parser, command_name, handler, userdata);
         if (rc != 0)
         {
             return -1;
@@ -254,7 +255,7 @@ static void remove_callback_handler(at_parser_handle_t parser, callback_entry_ha
     free(item);
 }
 
-static int add_callback_handler(at_parser_handle_t parser, const char *name, at_parser_received_command handler)
+static int add_callback_handler(at_parser_handle_t parser, const char *name, at_parser_received_command handler, void *userdata)
 {
     callback_entry_handle_t new_item = malloc(sizeof(struct callback_entry));
     if (new_item == NULL)
@@ -271,6 +272,7 @@ static int add_callback_handler(at_parser_handle_t parser, const char *name, at_
     strcpy(new_item->command, name);
 
     new_item->callback = handler;
+    new_item->userdata = userdata;
     new_item->next = NULL;
 
     if (parser->callbacks == NULL)
@@ -355,7 +357,7 @@ static void process_string_line(at_parser_handle_t parser, const char *str, size
                 {
                     if (item->callback)
                     {
-                        item->callback(parser, item->command, type, args, arg_length);
+                        item->callback(parser, item->userdata, item->command, type, args, arg_length);
                     }
                 }
                 item = item->next;
