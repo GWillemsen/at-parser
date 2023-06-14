@@ -172,11 +172,11 @@ extern int at_parser_process_buffer(at_parser_handle_t parser, const char *buffe
 static callback_entry_handle_t find_callback(callback_entry_handle_t start, const char *cmd, at_parser_received_command callback)
 {
     callback_entry_handle_t current = start;
-    while (current != NULL && strcmp(current->command, cmd) != 0 && current->callback != callback && current->next != NULL)
+    while (current != NULL && strlen(current->command) == strlen(cmd) && strcmp(current->command, cmd) != 0 && current->callback != callback && current->next != NULL)
     {
         current = current->next;
     }
-    if (current != NULL && strcmp(current->command, cmd) == 0 && current->callback == callback)
+    if (current != NULL && strlen(current->command) == strlen(cmd) && strcmp(current->command, cmd) == 0 && current->callback == callback)
     {
         return current;
     }
@@ -335,7 +335,7 @@ static void process_string_line(at_parser_handle_t parser, const char *str, size
         {
             if (item != NULL)
             {
-                if (strncmp(item->command, command_start, command_length) == 0)
+                if (strlen(item->command) == command_length && strncmp(item->command, command_start, command_length) == 0)
                 {
                     if (item->callback)
                     {
